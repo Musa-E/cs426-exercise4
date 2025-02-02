@@ -18,25 +18,26 @@ This project revolves around exercise 4 of the CS 426 course at UIC.  Specifical
 
 Your game, while respecting the KISS principle (Keep It Simple, Silly)
 
-- [ ] Must be 3D, and
+- [ ] 1.) Must be 3D, and
 
-- [ ] Must follow loosely a “Computer Architecture and Thieves” theme (your resources may be logical components, the goal might be to cache something, the environment might be inside a physical machine, your players might be thieves etc.) and
+- [ ] 2.) Must follow loosely a “Computer Architecture and Thieves” theme (your resources may be logical components, the goal might be to cache something, the environment might be inside a physical machine, your players might be thieves etc.) and
 
-- [ ] Must use at least one less common procedure/rule, in the vein of your Procedures/Rules exercise last week and
+- [ ] 3.) Must use at least one less common procedure/rule, in the vein of your Procedures/Rules exercise last week and
 
-- [ ] Must be a multiplayer, networked game, and
+- [ ] 4.) Must be a multiplayer, networked game, and
 
-- [ ] Must include a billboard with some text on it asking the serious test question, and
+- [ ] 5.) Must include a billboard with some text on it asking the serious test question, and
 
-- [ ] Must have a serious objective; i.e., by the end of the game, players should be able to answer correctly the test question you spelled out in E04. You may assume the test question would be answered outside the game, perhaps on paper; and
+- [ ] 6.) Must have a serious objective; i.e., by the end of the game, players should be able to answer correctly the test question you spelled out in E04. You may assume the test question would be answered outside the game, perhaps on paper; and
 
-- [ ] Must be accompanied by a README file with the names of your teammates, and briefly describing your FEs, including the multiplayer aspect, the unusual procedure/rule, how you followed the game theme, and the serious objective and question/answer.
+- [ ] 7.) Must be accompanied by a README file with the names of your teammates, and briefly describing your FEs, including the multiplayer aspect, the unusual procedure/rule, how you followed the game theme, and the serious objective and question/answer.
 
 
 Items 5) and 6) are extremely lightweight points.
 
 As a reminder, the basic architecture of a computer typically looks like this:
-[image]
+
+<img width="700" alt="Basic Computer Architecture" src="https://github.com/user-attachments/assets/68fedc9b-958a-419b-861f-773030f9c342">
 
 # Grading:
 
