@@ -1,4 +1,4 @@
-# CS 426 - Exercise 4
+# CS 426 - Homework 02
 
 ## Group Members:
 Diego Bravo, Musa Elqaq, Nathaniel Herrera
