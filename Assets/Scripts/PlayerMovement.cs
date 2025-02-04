@@ -13,10 +13,10 @@ public class PlayerMovement : NetworkBehaviour
     public List<Color> colors = new List<Color>();
 
     // getting the reference to the prefab
-    [SerializeField]
-    private GameObject spawnedPrefab;
+    // [SerializeField]
+    // private GameObject spawnedPrefab;
     // save the instantiated prefab
-    private GameObject instantiatedPrefab;
+    // private GameObject instantiatedPrefab;
 
     public GameObject cannon;
     public GameObject bullet;
@@ -63,21 +63,21 @@ public class PlayerMovement : NetworkBehaviour
 
         // if I is pressed spawn the object 
         // if J is pressed destroy the object
-        if (Input.GetKeyDown(KeyCode.I))
-        {
-            //instantiate the object
-            instantiatedPrefab = Instantiate(spawnedPrefab);
-            // spawn it on the scene
-            instantiatedPrefab.GetComponent<NetworkObject>().Spawn(true);
-        }
+        // if (Input.GetKeyDown(KeyCode.I))
+        // {
+        //     //instantiate the object
+        //     instantiatedPrefab = Instantiate(spawnedPrefab);
+        //     // spawn it on the scene
+        //     instantiatedPrefab.GetComponent<NetworkObject>().Spawn(true);
+        // }
 
-        if (Input.GetKeyDown(KeyCode.J))
-        {
-            //despawn the object
-            instantiatedPrefab.GetComponent<NetworkObject>().Despawn(true);
-            // destroy the object
-            Destroy(instantiatedPrefab);
-        }
+        // if (Input.GetKeyDown(KeyCode.J))
+        // {
+        //     //despawn the object
+        //     instantiatedPrefab.GetComponent<NetworkObject>().Despawn(true);
+        //     // destroy the object
+        //     Destroy(instantiatedPrefab);
+        // }
 
         if (Input.GetButtonDown("Fire1"))
         {
