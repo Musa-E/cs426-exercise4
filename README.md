@@ -18,13 +18,13 @@ This project revolves around exercise 4 of the CS 426 course at UIC.  Specifical
 
 Your game, while respecting the KISS principle (Keep It Simple, Silly)
 
-- [ ] 1.) Must be 3D, and
+- [x] 1.) Must be 3D, and
 
 - [ ] 2.) Must follow loosely a “Computer Architecture and Thieves” theme (your resources may be logical components, the goal might be to cache something, the environment might be inside a physical machine, your players might be thieves etc.) and
 
-- [ ] 3.) Must use at least one less common procedure/rule, in the vein of your Procedures/Rules exercise last week and
+- [x] 3.) Must use at least one less common procedure/rule, in the vein of your Procedures/Rules exercise last week and
 
-- [ ] 4.) Must be a multiplayer, networked game, and
+- [x] 4.) Must be a multiplayer, networked game, and
 
 - [ ] 5.) Must include a billboard with some text on it asking the serious test question, and
 
