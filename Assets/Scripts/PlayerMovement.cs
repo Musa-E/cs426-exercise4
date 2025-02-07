@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 // adding namespaces
 using Unity.Netcode;
+#if UNITY_EDITOR
 using UnityEditor.Callbacks;
+#endif
 // because we are using the NetworkBehaviour class
 // NewtorkBehaviour class is a part of the Unity.Netcode namespace
 // extension of MonoBehaviour that has functions related to multiplayer
