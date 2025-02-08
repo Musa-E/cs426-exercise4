@@ -7,7 +7,7 @@ using Unity.VisualScripting;
 using System.Linq;
 using System;
 
-
+using TMPro; // For the inventory display
 
 
 
@@ -69,6 +69,11 @@ public class PlayerMovement : NetworkBehaviour
     /// </summary>
     public int currentBulletCount = 0;
 
+    /// <summary>
+    /// How many part(s) the player currently has access to/stored
+    /// </summary>
+    public int currentPartCount = 0;
+
 
     // create a list of colors
     public List<Color> colors = new List<Color>();
@@ -107,6 +112,12 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private AudioListener audioListener;
     // reference to the camera
     [SerializeField] private Camera playerCamera;
+
+    /// <summary>
+    /// Displays the inventory on screen
+    /// </summary>
+    [SerializeField] public TMP_Text inventoryText;
+    // [SerializeField] public TextMeshProUGUI inventoryText;
 
 
     // Start is called before the first frame update
@@ -160,31 +171,7 @@ public class PlayerMovement : NetworkBehaviour
 
         // Allows the player to convert their first part into x bullets
         if (Input.GetKeyDown(KeyCode.C) && canConvertPartsToBullets) {
-
-            if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
-
-                // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
-                if (currentBulletCount + partToBulletConversion <= maxBullets) {
-                    
-                    if (inventory[0] == null) {
-                        Debug.Log("Part does not exist");
-                    
-                    } else {
-                        Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
-                        inventory.RemoveAt(0); // Remove first element of inventory list
-
-                        // Update the current bullet count
-                        currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
-                        Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + activeBullets.Count + " + " + partToBulletConversion);
-                    }
-
-                } else {
-                    Debug.Log("Could not convert part to bullets: Bullet count (" + activeBullets.Count + ") cannot exceed maximum bullet count (" + maxBullets + ").");
-                }
-
-            }   else {
-                Debug.Log("Cannot convert: Inventory is empty!");
-            }
+            convertPartToBullet();
         }
 
         /* 
@@ -201,6 +188,9 @@ public class PlayerMovement : NetworkBehaviour
         if (Input.GetKeyDown(KeyCode.I))
         {
             AddToInventory("", 1, false); // Create and add an item to the inventory (Default name is "TempObj")
+            
+            /// Visually update the inventory to show that it at least updates [temp]
+            // inventoryText.text = "Game Started!";
         }
 
 
@@ -290,8 +280,43 @@ public class PlayerMovement : NetworkBehaviour
         Part newPart = new(objName, 1, false);
         inventory.Add(newPart);
 
+        currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
         Debug.Log("Added " + newPart.Name + " to inventory!");
     }
+
+
+    /// <summary>
+    /// Converts the first part in the inventory into bullets </param> 
+    /// </summary>
+    void convertPartToBullet() {
+
+        if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
+
+                // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
+                if (currentBulletCount + partToBulletConversion <= maxBullets) {
+                    
+                    if (inventory[0] == null) {
+                        Debug.Log("Part does not exist");
+                    
+                    } else {
+                        Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
+                        inventory.RemoveAt(0); // Remove first element of inventory list
+                        currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
+
+                        // Update the current bullet count
+                        currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
+                        Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
+                    }
+
+                } else {
+                    Debug.Log("Could not convert part to bullets: Bullet count (" + activeBullets.Count + ") cannot exceed maximum bullet count (" + maxBullets + ").");
+                }
+
+            }   else {
+                Debug.Log("Cannot convert: Inventory is empty!");
+            }
+    }
+
 
     // this method is called when the object is spawned
     // we will change the color of the objects
