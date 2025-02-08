@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 // adding namespaces
 using Unity.Netcode;
+using Unity.VisualScripting;
+using System.Linq;
+using System;
+
+
+
+
+
 #if UNITY_EDITOR
 using UnityEditor.Callbacks;
 #endif
@@ -35,6 +43,33 @@ public class PlayerMovement : NetworkBehaviour
     private float playerHeight;
     private float raycastDistance;
 
+
+    /// <summary>
+    /// Holds a list of the current bullets in the scene for easy management
+    /// </summary>
+    private List<GameObject> activeBullets = new List<GameObject>();
+
+    /// <summary>
+    /// The speed of the bullets
+    /// </summary>
+    public float bulletSpead = 1000f;
+
+    /// <summary>
+    /// The max number of bullets the player can have stored at any given time.
+    /// </summary>
+    public int maxBullets = 5;
+
+    /// <summary>
+    /// The maximum number of bullets that can exist/be rendered at any one time
+    /// </summary>
+    public int maxRenderedBullets = 5;
+
+    /// <summary>
+    /// How many bullets the player currently has access to/stored
+    /// </summary>
+    public int currentBulletCount = 0;
+
+
     // create a list of colors
     public List<Color> colors = new List<Color>();
 
@@ -46,6 +81,26 @@ public class PlayerMovement : NetworkBehaviour
 
     public GameObject cannon;
     public GameObject bullet;
+
+    /// <summary>
+    /// Holds a list of the current items/parts in the player's inventory for easy management
+    /// </summary>
+    public List<Part> inventory = new List<Part>();
+
+    /// <summary>
+    /// Max number of parts a player can hold
+    /// </summary>
+    public int maxParts = 3; 
+    
+    /// </summary>
+    /// Can the player convert a part to bullets
+    /// </summary>
+    public bool canConvertPartsToBullets = true;
+
+    /// <summary>
+    /// For every converted part, the player gets x bullets (up to the maxBullet count)
+    /// </summary>
+    public int partToBulletConversion = 3; 
 
 
     // reference to the camera audio listener
@@ -69,6 +124,9 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
     }
+
+
+
     // Update is called once per frame
     void Update()
     {
@@ -100,24 +158,53 @@ public class PlayerMovement : NetworkBehaviour
         // transform.position += moveDirection * speed * Time.deltaTime;
 
 
-        // if I is pressed spawn the object 
-        // if J is pressed destroy the object
-        // if (Input.GetKeyDown(KeyCode.I))
-        // {
-        //     //instantiate the object
-        //     instantiatedPrefab = Instantiate(spawnedPrefab);
-        //     // spawn it on the scene
-        //     instantiatedPrefab.GetComponent<NetworkObject>().Spawn(true);
-        // }
+        // Allows the player to convert their first part into x bullets
+        if (Input.GetKeyDown(KeyCode.C) && canConvertPartsToBullets) {
 
-        // if (Input.GetKeyDown(KeyCode.J))
-        // {
-        //     //despawn the object
-        //     instantiatedPrefab.GetComponent<NetworkObject>().Despawn(true);
-        //     // destroy the object
-        //     Destroy(instantiatedPrefab);
-        // }
+            if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
 
+                // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
+                if (currentBulletCount + partToBulletConversion <= maxBullets) {
+                    
+                    if (inventory[0] == null) {
+                        Debug.Log("Part does not exist");
+                    
+                    } else {
+                        Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
+                        inventory.RemoveAt(0); // Remove first element of inventory list
+
+                        // Update the current bullet count
+                        currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
+                        Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + activeBullets.Count + " + " + partToBulletConversion);
+                    }
+
+                } else {
+                    Debug.Log("Could not convert part to bullets: Bullet count (" + activeBullets.Count + ") cannot exceed maximum bullet count (" + maxBullets + ").");
+                }
+
+            }   else {
+                Debug.Log("Cannot convert: Inventory is empty!");
+            }
+        }
+
+        /* 
+            If 'I' is pressed spawn the object [DEBUG]
+
+            For debugging, when you want to get bullets, give yourself a part to convert first.
+            This uses a new object type called a "Part", as defined in the "Part.cs" file.  It's
+            a super simple type, with a name, count, and a boolean keeping track if it's been turned
+            in yet.  It's highly recommended that when the turn in area is being implemented, there
+            be a way to store the names of each of these objects.  That said, make sure that it can
+            do that for multiple different clients giving the same objects (aka, differentiate between
+            them).
+        */
+        if (Input.GetKeyDown(KeyCode.I))
+        {
+            AddToInventory("", 1, false); // Create and add an item to the inventory (Default name is "TempObj")
+        }
+
+
+        // When the user shoots a bullet
         if (Input.GetButtonDown("Fire1"))
         {
             // call the BulletSpawningServerRpc method
@@ -183,6 +270,29 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
+
+    /// <summary>
+    /// Add an item to the inventory list using the given parameters.
+    /// </summary>
+    /// <param name="partName"> provides the part with a name </param> 
+    /// <param name="partCount"> provides how many of that part are being stored </param> 
+    /// <param name="hasBeenTurnedIn"> has this item been turned in before? </param> 
+    void AddToInventory(String partName, int partCount, bool hasBeenTurnedIn) {
+        // Create the new object and store it in the inventory
+        String objName;
+
+        if (partName == null || partName == "") {
+            objName = "TempObj " + inventory.Count;
+        } else {
+            objName = partName;
+        }
+        
+        Part newPart = new(objName, 1, false);
+        inventory.Add(newPart);
+
+        Debug.Log("Added " + newPart.Name + " to inventory!");
+    }
+
     // this method is called when the object is spawned
     // we will change the color of the objects
     public override void OnNetworkSpawn()
@@ -209,9 +319,58 @@ public class PlayerMovement : NetworkBehaviour
     [ClientRpc]
     private void BulletSpawningClientRpc(Vector3 position, Quaternion rotation)
     {
-        GameObject newBullet = Instantiate(bullet, position, rotation);
-        newBullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
-        newBullet.GetComponent<Rigidbody>().AddForce(newBullet.transform.forward * 1500);
-        // newBullet.GetComponent<NetworkObject>().Spawn(true);
+        
+        if (currentBulletCount > 0) {
+
+            // Ensure only maxRenderedBullets exist (for performance, and to make it look better; avoids old balls all over the scene)
+            if (activeBullets.Count >= maxRenderedBullets)
+            {
+                // Destroy the oldest bullet and remove it from the list
+                Destroy(activeBullets[0]);
+                activeBullets.RemoveAt(0);
+                // Debug.Log("Max number reached; removed first ball in bullet list");
+            }
+
+            GameObject newBullet = Instantiate(bullet, position, rotation);
+            newBullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
+            newBullet.GetComponent<Rigidbody>().AddForce(newBullet.transform.forward * bulletSpead);
+            // newBullet.GetComponent<NetworkObject>().Spawn(true);
+
+            // Add the new bullet to the bullet list
+            activeBullets.Add(newBullet);
+            
+            // Decrease the number of remaining bullets available to the player
+            currentBulletCount--;
+
+            // Debug.Log("Bullet Fired!");
+        }
     }
+
+
+    /* 
+        NOTE:
+
+            I don't think these two functions are needed since each client can locally hold their own inventory
+            without needing everyone else's.  That said, I included them just in case.  I'm not too familiar with
+            these Server/Client RPC functions yet, so feel free to get rid of them if they aren't needed.
+    
+        - Musa
+    */
+
+    // AddToInventory functions [Read above note]
+        // need to add the [ServerRPC] attribute
+        // [ServerRpc]
+        // private void AddToInventoryServerRpc(Part part) {
+
+        //     // call the AddToInventoryClientRpc method to locally add the item to the inventory all clients
+        //     AddToInventoryClientRpc(part);
+        // }
+
+        // need to add the [ClientRpc] attribute
+        // [ClientRpc]
+        // private void AddToInventoryClientRpc(Part part) {
+        //     inventory.Add(part);
+        //     Debug.Log("Added part to inventory. Total parts: " + inventory.Count);
+        // }
+
 }
