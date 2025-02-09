@@ -360,17 +360,24 @@ public class PlayerMovement : NetworkBehaviour
         // Assuming the item did exist in the parts list, continue
         if (partIdx != -1) {
 
-            if (!parts.ElementAt(partIdx).WasTurnedIn) { // Part has not been turned in yet
-                        
-                // Update turned in status for part from part list and add it to the player's inventory
-                inventory.Add(parts.ElementAt(partIdx));
-                parts.ElementAt(partIdx).WasTurnedIn = true;
+            // Prevents duplicates; if name is already in inventory, does not add
+            if (!isPartAlreadyInInventory(acquiredItem.Name)) {
 
-                currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
-                Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has been acquired.");
+                if (!parts.ElementAt(partIdx).WasTurnedIn) { // Part has not been turned in yet
+                            
+                    // Update turned in status for part from part list and add it to the player's inventory
+                    inventory.Add(parts.ElementAt(partIdx));
+                    parts.ElementAt(partIdx).WasTurnedIn = true;
 
-            } else { // Element found, but was already turned in; does not allow for duplicate items in inventory
-                Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has already been turned in, and cannot be reacquired.");
+                    currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
+                    Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has been acquired.");
+
+                } else { // Element found, but was already turned in; does not allow for duplicate items in inventory
+                    Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has already been turned in, and cannot be reacquired.");
+                }
+                
+            } else {
+                Debug.Log("Item not added: Cannot have duplicate item names in inventory");
             }
 
         } else { // Item was not found in the parts list
@@ -527,6 +534,30 @@ public class PlayerMovement : NetworkBehaviour
         return -1;
     }
 
+
+    public bool isPartAlreadyInInventory(string partName) {
+
+        // Ensure given part exists
+        if (partName == null || partName == "") {
+            return false;
+        }
+
+        // Verify the item exists in the part list
+        for (int i = 0; i < inventory.Count ; i++) { // Not too many items, so efficiency isn't a big deal.
+            
+            if (inventory.ElementAt(i).Name == partName) { // Part name matches   
+                // Debug.Log("The '" + parts.ElementAt(i).Name + "' part has been found.");
+                
+                // Return the matching part
+                return true;
+            }
+            else { // Element not found
+                // Debug.Log("The '" + parts.ElementAt(i).Name + "' part not found in part list, and cannot be acquired.");
+            }
+        }
+
+        return false;
+    }
 
     // this method is called when the object is spawned
     // we will change the color of the objects

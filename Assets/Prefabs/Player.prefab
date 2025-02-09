@@ -390,13 +390,23 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
+  bulletSpead: 1000
+  maxBullets: 15
+  maxRenderedBullets: 5
+  currentBulletCount: 0
+  currentPartCount: 0
   colors:
   - {r: 0.92156863, g: 0.45882353, b: 0.84313726, a: 1}
   - {r: 0.43137255, g: 0.49019608, b: 0.93725497, a: 1}
   cannon: {fileID: 3457318094079544182}
   bullet: {fileID: 234619220890464546, guid: 1404c1ef69b6d334f8208c6f1d33cf3c, type: 3}
+  partNames: []
+  maxParts: 3
+  canConvertPartsToBullets: 1
+  partToBulletConversion: 3
   audioListener: {fileID: 3211948451810884286}
   playerCamera: {fileID: 4305004929243962989}
+  inventoryText: {fileID: 0}
 --- !u!114 &3532501110144039376
 MonoBehaviour:
   m_ObjectHideFlags: 0
