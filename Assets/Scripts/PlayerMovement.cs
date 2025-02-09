@@ -57,7 +57,7 @@ public class PlayerMovement : NetworkBehaviour
     /// <summary>
     /// The max number of bullets the player can have stored at any given time.
     /// </summary>
-    public int maxBullets = 5;
+    public int maxBullets = 15; // DEBUG: Set to 15 to easily test part conversions, normally at 5
 
     /// <summary>
     /// The maximum number of bullets that can exist/be rendered at any one time
@@ -92,6 +92,14 @@ public class PlayerMovement : NetworkBehaviour
     /// </summary>
     public List<Part> inventory = new List<Part>();
 
+
+    /// <summary>
+    /// Holds the names of every part
+    /// </summary>
+    public List<String> partNames = new List<String>();
+    public List<Part> parts = new List<Part>();
+
+
     /// <summary>
     /// Max number of parts a player can hold
     /// </summary>
@@ -106,6 +114,10 @@ public class PlayerMovement : NetworkBehaviour
     /// For every converted part, the player gets x bullets (up to the maxBullet count)
     /// </summary>
     public int partToBulletConversion = 3; 
+
+    // Which part is going to be placed in the inventory next.  This is a temp feature just for debugging purposes.
+    // This will either be determined randomly, or by some other method at a later date.
+    private int elementNumber = 0;
 
 
     // reference to the camera audio listener
@@ -134,6 +146,9 @@ public class PlayerMovement : NetworkBehaviour
         // Hides the mouse
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Fill the partNames list
+        initParts();
     }
 
 
@@ -187,10 +202,26 @@ public class PlayerMovement : NetworkBehaviour
         */
         if (Input.GetKeyDown(KeyCode.I))
         {
-            AddToInventory("", 1, false); // Create and add an item to the inventory (Default name is "TempObj")
-            
+            // AddToInventory("", 1, false, "Misc"); // Create and add an item to the inventory (Default name is "TempObj")
+
+            if (currentPartCount < maxParts) { // Don't add a part if the max number of parts has been reached
+                
+                // Keep going through the part list
+                if (elementNumber >= 0 && elementNumber < parts.Count) {
+                    AddToInventory(parts.ElementAt(elementNumber));
+                    // Debug.Log("Element number is currently: " + elementNumber);
+                    elementNumber++; // increment
+                }
+            } else {
+                Debug.Log("Cannot add item: Cannot exceed max part count. You have " + currentPartCount + " parts, max is " + maxParts);
+            }
             /// Visually update the inventory to show that it at least updates [temp]
             // inventoryText.text = "Game Started!";
+        }
+
+        // Allows the player to convert their first part into x bullets
+        if (Input.GetKeyDown(KeyCode.R)) {
+            resetPartTurnedInStatus();
         }
 
 
@@ -262,59 +293,238 @@ public class PlayerMovement : NetworkBehaviour
 
 
     /// <summary>
-    /// Add an item to the inventory list using the given parameters.
+    /// Add an item to the inventory list using the given parameters.  [DO NOT USE]
     /// </summary>
     /// <param name="partName"> provides the part with a name </param> 
     /// <param name="partCount"> provides how many of that part are being stored </param> 
     /// <param name="hasBeenTurnedIn"> has this item been turned in before? </param> 
-    void AddToInventory(String partName, int partCount, bool hasBeenTurnedIn) {
-        // Create the new object and store it in the inventory
-        String objName;
-
-        if (partName == null || partName == "") {
-            objName = "TempObj " + inventory.Count;
-        } else {
-            objName = partName;
-        }
+    // void AddToInventory(String partName, int partCount, bool hasBeenTurnedIn, string category) {
         
-        Part newPart = new(objName, 1, false);
-        inventory.Add(newPart);
+    //     // Create the new object and store it in the inventory
+    //     String objName;
+    //     string catName; // What category does this item belong to
 
-        currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
-        Debug.Log("Added " + newPart.Name + " to inventory!");
+    //     // Handles the partName
+    //     if (partName == null || partName == "") {
+    //         objName = "TempObj " + inventory.Count;
+    //     } else {
+    //         objName = partName;
+    //     }
+
+    //     // Handles the category
+    //     if (category == null || category == "") {
+    //         catName = "Misc";
+    //     } else {
+    //         catName = category;
+    //     }
+        
+    //     Part newPart = new(objName, 1, false);
+    //     newPart.SetMemberOf(catName); // Update the category
+
+    //     // Add to inventory
+    //     inventory.Add(newPart);
+
+    //     currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
+    //     Debug.Log("Added " + newPart.Name + " to inventory!");
+    // }
+
+
+    /// <summary>
+    /// Add an item to the inventory list using the given part parameter.
+    /// </summary>
+    /// <param name="acquiredItem"> provides the part to add to the inventory (with various conditions) </param> 
+    void AddToInventory(Part acquiredItem) {
+        
+        /* ************************************************************************************************************
+            NOTE:
+
+            I wanted to make things a bit easier, so I made the inventory always use the actual elements in the
+            'parts' list declared at the top of this file.  That way, whenever you use the part for some reason,
+            it's the same object, not a local copy of it.  So if you need to use a part, please refer to it as 
+                parts.ElementAt(i) 
+            instead of assigning a local variable to hold a copy of it, like 
+                Part temp = parts.ElementAt(i)
+            
+            It might not be the most convenient, but it's late and since this works, it's good enough for me.
+        ************************************************************************************************************ */
+
+        // Confirm non-null
+        if (acquiredItem == null) {
+            Debug.Log("Cannot add part: Item is null");
+            return;
+        }
+
+        // The index of the part in the parts list
+        int partIdx = FindPartIndexByName(acquiredItem.Name);
+
+        // Assuming the item did exist in the parts list, continue
+        if (partIdx != -1) {
+
+            if (!parts.ElementAt(partIdx).WasTurnedIn) { // Part has not been turned in yet
+                        
+                // Update turned in status for part from part list and add it to the player's inventory
+                inventory.Add(parts.ElementAt(partIdx));
+                parts.ElementAt(partIdx).WasTurnedIn = true;
+
+                currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
+                Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has been acquired.");
+
+            } else { // Element found, but was already turned in; does not allow for duplicate items in inventory
+                Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has already been turned in, and cannot be reacquired.");
+            }
+
+        } else { // Item was not found in the parts list
+            Debug.Log("This part does not exist in the part list and cannot be acquired.");
+        }
+
+    }
+
+
+    /// <summary>
+    /// Converts parts held in the player's inventory into bullets, with various conditions being checked
+    /// </summary>
+    void convertPartToBullet() {
+
+        if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
+
+            // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
+            if (currentBulletCount + partToBulletConversion <= maxBullets) {
+                
+                if (inventory[0] == null) { // Ensure not null
+                    Debug.Log("Part does not exist");
+                
+                } else {
+                    Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
+                    inventory.RemoveAt(0); // Remove first element of inventory list
+                    currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
+
+                    // Update the current bullet count
+                    currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
+                    // Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
+                }
+
+            } else {
+                Debug.Log("Could not convert part to bullets: Bullet count (" + activeBullets.Count + ") cannot exceed maximum bullet count (" + maxBullets + ").");
+            }
+
+        }   else {
+            Debug.Log("Cannot convert: Inventory is empty!");
+        }
     }
 
 
     /// <summary>
     /// Converts the first part in the inventory into bullets </param> 
     /// </summary>
-    void convertPartToBullet() {
+    // void convertPartToBullet() {
 
-        if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
+    //     if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
 
-                // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
-                if (currentBulletCount + partToBulletConversion <= maxBullets) {
+    //             // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
+    //             if (currentBulletCount + partToBulletConversion <= maxBullets) {
                     
-                    if (inventory[0] == null) {
-                        Debug.Log("Part does not exist");
+    //                 if (inventory[0] == null) {
+    //                     Debug.Log("Part does not exist");
                     
-                    } else {
-                        Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
-                        inventory.RemoveAt(0); // Remove first element of inventory list
-                        currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
+    //                 } else {
+    //                     Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
+    //                     inventory.RemoveAt(0); // Remove first element of inventory list
+    //                     currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
 
-                        // Update the current bullet count
-                        currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
-                        Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
-                    }
+    //                     // Update the current bullet count
+    //                     currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
+    //                     Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
+    //                 }
 
-                } else {
-                    Debug.Log("Could not convert part to bullets: Bullet count (" + activeBullets.Count + ") cannot exceed maximum bullet count (" + maxBullets + ").");
-                }
+    //             } else {
+    //                 Debug.Log("Could not convert part to bullets: Bullet count (" + activeBullets.Count + ") cannot exceed maximum bullet count (" + maxBullets + ").");
+    //             }
 
-            }   else {
-                Debug.Log("Cannot convert: Inventory is empty!");
+    //         }   else {
+    //             Debug.Log("Cannot convert: Inventory is empty!");
+    //         }
+    // }
+
+
+    /// <summary>
+    /// Fills the part list with all parts possible
+    /// </summary>
+    void initParts() {
+
+        // Input Devices
+        Part keyboard = new("keyboard", 1, false, "Input Devices");
+        Part mouse = new("mouse", 1, false, "Input Devices");
+        Part scanner = new("scanner", 1, false, "Input Devices");
+        Part joystick = new("joystick", 1, false, "Input Devices");
+
+        // Output Devices
+        Part controlUnit = new("controlUnit", 1, false, "CPU");
+        Part ALU = new("ALU", 1, false, "CPU");
+        Part memory = new("memory", 1, false, "CPU");
+
+        // CPU Devices
+        Part monitor = new("monitor", 1, false, "Output Devices");
+        Part printer = new("printer", 1, false, "Output Devices");
+        Part speaker = new("speaker", 1, false, "Output Devices");
+        Part headphones = new("headphones", 1, false, "Output Devices");
+
+        // Add to part list
+        parts.Add(keyboard);
+        parts.Add(mouse);
+        parts.Add(scanner);
+        parts.Add(joystick);
+        parts.Add(controlUnit);
+        parts.Add(ALU);
+        parts.Add(memory);
+        parts.Add(monitor);
+        parts.Add(printer);
+        parts.Add(speaker);
+        parts.Add(headphones);
+        
+    }
+
+
+    /// <summary>
+    /// Allows you to reset the "Turned in" status of all parts in the parts list
+    /// </summary>
+    void resetPartTurnedInStatus() {
+        for (int i = 0; i < parts.Count; i++) {
+            parts.ElementAt(i).WasTurnedIn = false;
+        }
+        
+        // Reset the counter for each item being added to the inventory
+        elementNumber = 0;
+
+        Debug.Log("Part 'Turned In' Status has been reset for all items.");
+    }
+
+
+    /// <summary>
+    /// Given a part name, this function will return the index of the part with the matching name in the parts list. -1 if it doesn't exist
+    /// </summary>
+    /// <param name="partName"> Name of the part you're searching for </param>
+    /// <returns> index of the part with the matching name in the parts list. -1 if it doesn't exist </returns>
+    public int FindPartIndexByName(string partName) {
+
+        if (partName == null || partName == "") {
+            return -1;
+        }
+
+        // Verify the item exists in the part list
+        for (int i = 0; i < parts.Count ; i++) { // Not too many items, so efficiency isn't a big deal.
+            
+            if (parts.ElementAt(i).Name == partName) { // Part name matches   
+                // Debug.Log("The '" + parts.ElementAt(i).Name + "' part has been found.");
+                
+                // Return the matching part
+                return i;
             }
+            else { // Element not found
+                // Debug.Log("The '" + parts.ElementAt(i).Name + "' part not found in part list, and cannot be acquired.");
+            }
+        }
+
+        return -1;
     }
 
 
