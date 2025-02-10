@@ -149,6 +149,8 @@ public class PlayerMovement : NetworkBehaviour
 
         // Fill the partNames list
         initParts();
+
+        // inventoryText.text = "Inventory:";
     }
 
 
@@ -222,6 +224,12 @@ public class PlayerMovement : NetworkBehaviour
         // Allows the player to convert their first part into x bullets
         if (Input.GetKeyDown(KeyCode.R)) {
             resetPartTurnedInStatus();
+        }
+
+
+        // Allows the player to turn in their first, not-turned in part so it can't be stolen
+        if (Input.GetKeyDown(KeyCode.T)) {
+            turnInFirstEligibleItem();
         }
 
 
@@ -559,6 +567,26 @@ public class PlayerMovement : NetworkBehaviour
         return false;
     }
 
+
+    /// <summary>
+    /// Allows the player to turn in the first item in their inventory
+    /// </summary>
+    void turnInFirstEligibleItem() {
+
+        // Iterate through list until the first element that hasn't been turned in is found
+        for (int i = 0 ; i < inventory.Count; i++) {
+            
+            // If the item in the inventory has not already been turned in, turn it in.
+            // Finds the first not turned in item, updates it, then returns
+            if (!inventory.ElementAt(i).WasTurnedIn) {
+                inventory.ElementAt(i).WasTurnedIn = true;
+                return;
+            }
+        }
+
+    }
+
+
     // this method is called when the object is spawned
     // we will change the color of the objects
     public override void OnNetworkSpawn()
@@ -573,6 +601,7 @@ public class PlayerMovement : NetworkBehaviour
         playerCamera.enabled = true;
     }
 
+
     // need to add the [ServerRPC] attribute
     [ServerRpc]
     // method name must end with ServerRPC
@@ -581,6 +610,7 @@ public class PlayerMovement : NetworkBehaviour
         // call the BulletSpawningClientRpc method to locally create the bullet on all clients
         BulletSpawningClientRpc(position, rotation);
     }
+
 
     [ClientRpc]
     private void BulletSpawningClientRpc(Vector3 position, Quaternion rotation)
