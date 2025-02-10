@@ -99,6 +99,7 @@ public class PlayerMovement : NetworkBehaviour
     public List<String> partNames = new List<String>();
     public List<Part> parts = new List<Part>();
 
+    private bool partTurnedIn = false;
 
     /// <summary>
     /// Max number of parts a player can hold
@@ -229,7 +230,12 @@ public class PlayerMovement : NetworkBehaviour
 
         // Allows the player to turn in their first, not-turned in part so it can't be stolen
         if (Input.GetKeyDown(KeyCode.T)) {
-            turnInFirstEligibleItem();
+            
+            // If this function returns true, a part was turned in.  Otherwise, all parts were unable to be turned in.
+            if(!turnInFirstEligibleItem()) {
+                Debug.Log("No parts could be turned in.  This is a win condition.");
+            }
+
         }
 
 
@@ -238,7 +244,8 @@ public class PlayerMovement : NetworkBehaviour
         {
             // call the BulletSpawningServerRpc method
             // as client can not spawn objects
-            BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
+            // BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
+            FireBullet();
         }
     }
 
@@ -248,11 +255,15 @@ public class PlayerMovement : NetworkBehaviour
         ApplyJumpPhysics();
     }
 
+
+    
     void MovePlayer()
     {
 
         Vector3 movement = (transform.right * moveHorizontal + transform.forward * moveForward).normalized;
         Vector3 targetVelocity = movement * MoveSpeed;
+
+        if (rb.isKinematic) rb.isKinematic = false; // Ensure Rigidbody is NOT kinematic (gets rid of warning spammed in console)
 
         // Apply movement to the Rigidbody
         Vector3 velocity = rb.linearVelocity;
@@ -419,7 +430,7 @@ public class PlayerMovement : NetworkBehaviour
                 }
 
             } else {
-                Debug.Log("Could not convert part to bullets: Bullet count (" + activeBullets.Count + ") cannot exceed maximum bullet count (" + maxBullets + ").");
+                Debug.Log("Could not convert part to bullets: Bullet count (" + currentBulletCount + ") cannot exceed maximum bullet count (" + maxBullets + ").");
             }
 
         }   else {
@@ -571,7 +582,8 @@ public class PlayerMovement : NetworkBehaviour
     /// <summary>
     /// Allows the player to turn in the first item in their inventory
     /// </summary>
-    void turnInFirstEligibleItem() {
+    /// <returns> True: A part was turned in.  False: No part could be turned in, this is a win condition. </returns>
+    bool turnInFirstEligibleItem() {
 
         // Iterate through list until the first element that hasn't been turned in is found
         for (int i = 0 ; i < inventory.Count; i++) {
@@ -579,11 +591,14 @@ public class PlayerMovement : NetworkBehaviour
             // If the item in the inventory has not already been turned in, turn it in.
             // Finds the first not turned in item, updates it, then returns
             if (!inventory.ElementAt(i).WasTurnedIn) {
+
                 inventory.ElementAt(i).WasTurnedIn = true;
-                return;
+                Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
+                return true;
             }
         }
 
+        return false;
     }
 
 
@@ -605,41 +620,134 @@ public class PlayerMovement : NetworkBehaviour
     // need to add the [ServerRPC] attribute
     [ServerRpc]
     // method name must end with ServerRPC
-    private void BulletSpawningServerRpc(Vector3 position, Quaternion rotation)
+    private void BulletSpawningServerRpc(Vector3 position, Quaternion rotation, ServerRpcParams rpcParams = default)
     {
-        // call the BulletSpawningClientRpc method to locally create the bullet on all clients
-        BulletSpawningClientRpc(position, rotation);
+        // Check the player's ID
+        ulong playerId = rpcParams.Receive.SenderClientId;
+
+        // Find the player who requested to fire the bullet
+        PlayerMovement player = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject.GetComponent<PlayerMovement>();
+
+        if (player.currentBulletCount > 0) {
+            player.currentBulletCount--; // Deduct bullet from inventory
+
+            // Ensure only maxRenderedBullets exist (for performance)
+            if (activeBullets.Count >= maxRenderedBullets) {
+                Destroy(activeBullets[0]);
+                activeBullets.RemoveAt(0);
+            }
+
+            // Spawn bullet on the server
+            GameObject newBullet = Instantiate(bullet, position, rotation);
+            NetworkObject networkObject = newBullet.GetComponent<NetworkObject>();
+
+            if (networkObject != null) {
+                networkObject.Spawn(true); // Ensures all clients see it
+
+                NetworkBullet bulletScript = newBullet.GetComponent<NetworkBullet>();
+                if (bulletScript != null) {
+                    Vector3 initialVelocity = newBullet.transform.forward * bulletSpead + Vector3.up * 2;
+                    bulletScript.SetVelocity(initialVelocity);
+                }
+            }
+
+            // Notify clients to sync bullet motion (excluding shooter)
+            BulletSpawningClientRpc(newBullet.GetComponent<NetworkObject>(), playerId);
+
+            // Add to active bullets list
+            activeBullets.Add(newBullet);
+        }
     }
 
 
+    /// <summary>
+    /// Spawn the bullet for client(s)
+    /// </summary>
+    /// <param name="bulletRef"></param>
+    /// <param name="playerId"></param>
     [ClientRpc]
-    private void BulletSpawningClientRpc(Vector3 position, Quaternion rotation)
+    private void BulletSpawningClientRpc(NetworkObjectReference bulletRef, ulong playerId)
     {
-        
-        if (currentBulletCount > 0) {
+        // Prevent shooter from creating another bullet (they already see it)
+        if (NetworkManager.Singleton.LocalClientId == playerId) return;
 
-            // Ensure only maxRenderedBullets exist (for performance, and to make it look better; avoids old balls all over the scene)
-            if (activeBullets.Count >= maxRenderedBullets)
-            {
-                // Destroy the oldest bullet and remove it from the list
-                Destroy(activeBullets[0]);
-                activeBullets.RemoveAt(0);
-                // Debug.Log("Max number reached; removed first ball in bullet list");
+        // Get the bullet object
+        if (bulletRef.TryGet(out NetworkObject bulletObject)) {
+            NetworkBullet bulletScript = bulletObject.GetComponent<NetworkBullet>();
+
+            // Assuming the script isn't null, store the velocity of the bullet
+            if (bulletScript != null) {
+                Vector3 initialVelocity = bulletObject.transform.forward * bulletSpead + Vector3.up * 2;
+                bulletScript.SetVelocity(initialVelocity);
             }
-
-            GameObject newBullet = Instantiate(bullet, position, rotation);
-            newBullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
-            newBullet.GetComponent<Rigidbody>().AddForce(newBullet.transform.forward * bulletSpead);
-            // newBullet.GetComponent<NetworkObject>().Spawn(true);
-
-            // Add the new bullet to the bullet list
-            activeBullets.Add(newBullet);
-            
-            // Decrease the number of remaining bullets available to the player
-            currentBulletCount--;
-
-            // Debug.Log("Bullet Fired!");
         }
+}
+
+    // [ClientRpc]
+    // private void BulletSpawningClientRpc(Vector3 position, Quaternion rotation, ulong playerId)
+    // {
+
+    //     // Prevent the local shooter from duplicating bullets (already spawned by the server)
+    //     if (IsOwner) return;
+
+    //     // Ensure only maxRenderedBullets exist (for performance)
+    //     if (activeBullets.Count >= maxRenderedBullets)
+    //     {
+    //         Destroy(activeBullets[0]);
+    //         activeBullets.RemoveAt(0);
+    //     }
+
+    //     GameObject newBullet = Instantiate(bullet, position, rotation);
+    //     NetworkBullet bulletScript = newBullet.GetComponent<NetworkBullet>();
+
+    //     if (bulletScript != null)
+    //     {
+    //         Vector3 initialVelocity = newBullet.transform.forward * (bulletSpead * 0.5f) + Vector3.up * 1.5f; // Reduced speed
+    //         bulletScript.SetVelocity(initialVelocity);
+    //     }
+
+    //     // Add to active bullets list
+    //     activeBullets.Add(newBullet);
+
+
+    //     // // If this client is the shooter, don't spawn another bullet (since it already did locally)
+    //     // if (NetworkManager.Singleton.LocalClientId == playerId) return;
+
+    //     // // Ensure only maxRenderedBullets exist (for performance)
+    //     // if (activeBullets.Count >= maxRenderedBullets)
+    //     // {
+    //     //     Destroy(activeBullets[0]);
+    //     //     activeBullets.RemoveAt(0);
+    //     // }
+
+    //     // GameObject newBullet = Instantiate(bullet, position, rotation);
+    //     // NetworkBullet bulletScript = newBullet.GetComponent<NetworkBullet>();
+
+    //     // if (bulletScript != null)
+    //     // {
+    //     //     Vector3 initialVelocity = newBullet.transform.forward * (bulletSpead * 0.5f) + Vector3.up * 1.5f; // Reduced speed
+    //     //     bulletScript.SetVelocity(initialVelocity);
+    //     // }
+
+    //     // // Add to active bullets list
+    //     // activeBullets.Add(newBullet);
+    // }
+
+
+    /// <summary>
+    /// Local spawning of a bullet so client doesn't need to wait for the server for everything.
+    /// </summary>
+    private void FireBullet()
+    {
+
+        // Prevent shooting if out of bullets
+        if (currentBulletCount <= 0) {
+            Debug.Log("No bullets left!");
+            return;
+        }
+
+        // Tell the server to officially create the bullet for synchronization
+        BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
     }
 
 
