@@ -49,10 +49,12 @@ public class PlayerMovement : NetworkBehaviour
     /// </summary>
     private List<GameObject> activeBullets = new List<GameObject>();
 
+    private GameObject newBullet;
+
     /// <summary>
     /// The speed of the bullets
     /// </summary>
-    public float bulletSpead = 1000f;
+    public float bulletSpeed = 3000f;
 
     /// <summary>
     /// The max number of bullets the player can have stored at any given time.
@@ -230,7 +232,25 @@ public class PlayerMovement : NetworkBehaviour
         {
             // call the BulletSpawningServerRpc method
             // as client can not spawn objects
-            BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
+            if (currentBulletCount > 0) {
+
+                // Ensure only maxRenderedBullets exist (for performance, and to make it look better; avoids old balls all over the scene)
+                if (activeBullets.Count >= maxRenderedBullets)
+                {
+                    // Destroy the oldest bullet and remove it from the list
+                    Destroy(activeBullets[0]);
+                    activeBullets.RemoveAt(0);
+                    // Debug.Log("Max number reached; removed first ball in bullet list");
+                }
+                BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
+                // Add the new bullet to the bullet list
+                activeBullets.Add(newBullet);
+                
+                // Decrease the number of remaining bullets available to the player
+                currentBulletCount--;
+
+                // Debug.Log("Bullet Fired!");
+            }
         }
     }
 
@@ -585,31 +605,11 @@ public class PlayerMovement : NetworkBehaviour
     [ClientRpc]
     private void BulletSpawningClientRpc(Vector3 position, Quaternion rotation)
     {
-        
-        if (currentBulletCount > 0) {
-
-            // Ensure only maxRenderedBullets exist (for performance, and to make it look better; avoids old balls all over the scene)
-            if (activeBullets.Count >= maxRenderedBullets)
-            {
-                // Destroy the oldest bullet and remove it from the list
-                Destroy(activeBullets[0]);
-                activeBullets.RemoveAt(0);
-                // Debug.Log("Max number reached; removed first ball in bullet list");
-            }
-
-            GameObject newBullet = Instantiate(bullet, position, rotation);
-            newBullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
-            newBullet.GetComponent<Rigidbody>().AddForce(newBullet.transform.forward * bulletSpead);
-            // newBullet.GetComponent<NetworkObject>().Spawn(true);
-
-            // Add the new bullet to the bullet list
-            activeBullets.Add(newBullet);
+        newBullet = Instantiate(bullet, position, rotation);
+        newBullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
+        newBullet.GetComponent<Rigidbody>().AddForce(newBullet.transform.forward * bulletSpeed);
+        // newBullet.GetComponent<NetworkObject>().Spawn(true);
             
-            // Decrease the number of remaining bullets available to the player
-            currentBulletCount--;
-
-            // Debug.Log("Bullet Fired!");
-        }
     }
 
 
@@ -638,5 +638,19 @@ public class PlayerMovement : NetworkBehaviour
         //     inventory.Add(part);
         //     Debug.Log("Added part to inventory. Total parts: " + inventory.Count);
         // }
+
+    // Function is called on first collision
+    private void OnCollisionEnter(Collision collision)
+    {
+
+        // Printing if collision is detected on the console
+        Debug.Log("Collision Detected");
+
+        // Checks if player collided with bullet and if their inventory is not empty. As a result, the first item in their inventory will be removed.
+        if(collision.gameObject == bullet && inventory.Any()) {
+            inventory.RemoveAt(0);
+        }
+
+    }
 
 }
