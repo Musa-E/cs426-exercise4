@@ -1699,7 +1699,7 @@ GameObject:
   - component: {fileID: 754991913}
   - component: {fileID: 754991912}
   m_Layer: 0
-  m_Name: Cube (7)
+  m_Name: Headphones
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1943,7 +1943,7 @@ GameObject:
   - component: {fileID: 894814631}
   - component: {fileID: 894814630}
   m_Layer: 0
-  m_Name: Cube (3)
+  m_Name: Joystick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2693,7 +2693,7 @@ GameObject:
   - component: {fileID: 1113544339}
   - component: {fileID: 1113544338}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Keyboard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2958,7 +2958,7 @@ GameObject:
   - component: {fileID: 1272116768}
   - component: {fileID: 1272116767}
   m_Layer: 0
-  m_Name: Cube (5)
+  m_Name: Printer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3696,7 +3696,7 @@ GameObject:
   - component: {fileID: 1530887667}
   - component: {fileID: 1530887666}
   m_Layer: 0
-  m_Name: Cube (6)
+  m_Name: Speaker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4298,7 +4298,7 @@ GameObject:
   - component: {fileID: 2000620742}
   - component: {fileID: 2000620741}
   m_Layer: 0
-  m_Name: Cube (4)
+  m_Name: Monitor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4406,7 +4406,7 @@ GameObject:
   - component: {fileID: 2001616428}
   - component: {fileID: 2001616427}
   m_Layer: 0
-  m_Name: Cube (1)
+  m_Name: Mouse
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4619,7 +4619,7 @@ GameObject:
   - component: {fileID: 2120045815}
   - component: {fileID: 2120045814}
   m_Layer: 0
-  m_Name: Cube (2)
+  m_Name: Scanner
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
