@@ -1,7 +1,7 @@
 using UnityEngine;
 using TMPro;
 
-public class BuildingScript : MonoBehaviour
+public class BuildingScript : MonoBehaviour 
 {
     public Material activeMat;
     public Material idleMat;
@@ -13,6 +13,7 @@ public class BuildingScript : MonoBehaviour
     {
         GetComponent<Renderer>().material = activeMat;
     }
+
 
     void Update(){
         if(!isActive && coolDownTime > 0){
@@ -33,7 +34,7 @@ public class BuildingScript : MonoBehaviour
         if (isActive){
             GetComponent<Renderer>().material = idleMat;
             ItemList.text += '\n' + this.name;
-            
+
             isActive = false;
         }
     }
