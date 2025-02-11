@@ -52,7 +52,7 @@ public class PlayerMovement : NetworkBehaviour
     /// <summary>
     /// The speed of the bullets
     /// </summary>
-    public float bulletSpead = 1000f;
+    public float bulletSpeed = 3000f;
 
     /// <summary>
     /// The max number of bullets the player can have stored at any given time.
@@ -617,71 +617,35 @@ public class PlayerMovement : NetworkBehaviour
     }
 
 
-    // need to add the [ServerRPC] attribute
+    /// <summary>
+    /// Spawns a bullet in sync with server and client.
+    /// </summary>
     [ServerRpc]
-    // method name must end with ServerRPC
-    private void BulletSpawningServerRpc(Vector3 position, Quaternion rotation, ServerRpcParams rpcParams = default)
+    private void BulletSpawningServerRpc(Vector3 position, Quaternion rotation)
     {
-        // Check the player's ID
-        ulong playerId = rpcParams.Receive.SenderClientId;
-
-        // Find the player who requested to fire the bullet
-        PlayerMovement player = NetworkManager.Singleton.ConnectedClients[playerId].PlayerObject.GetComponent<PlayerMovement>();
-
-        if (player.currentBulletCount > 0) {
-            player.currentBulletCount--; // Deduct bullet from inventory
-
-            // Ensure only maxRenderedBullets exist (for performance)
-            if (activeBullets.Count >= maxRenderedBullets) {
-                Destroy(activeBullets[0]);
-                activeBullets.RemoveAt(0);
-            }
-
-            // Spawn bullet on the server
-            GameObject newBullet = Instantiate(bullet, position, rotation);
-            NetworkObject networkObject = newBullet.GetComponent<NetworkObject>();
-
-            if (networkObject != null) {
-                networkObject.Spawn(true); // Ensures all clients see it
-
-                NetworkBullet bulletScript = newBullet.GetComponent<NetworkBullet>();
-                if (bulletScript != null) {
-                    Vector3 initialVelocity = newBullet.transform.forward * bulletSpead + Vector3.up * 2;
-                    bulletScript.SetVelocity(initialVelocity);
-                }
-            }
-
-            // Notify clients to sync bullet motion (excluding shooter)
-            BulletSpawningClientRpc(newBullet.GetComponent<NetworkObject>(), playerId);
-
-            // Add to active bullets list
-            activeBullets.Add(newBullet);
+        // Changed spawn calls to work on server rpc instead. Works better for moving objects like bullets.
+        GameObject newBullet = Instantiate(bullet, position, rotation);
+        NetworkObject networkObject = newBullet.GetComponent<NetworkObject>();
+        if (networkObject != null)
+        {
+            networkObject.Spawn(true);
+            BulletSetupClientRpc(newBullet);
         }
     }
 
-
     /// <summary>
-    /// Spawn the bullet for client(s)
+    /// Applies velocity and movement for bullets in each client.
     /// </summary>
-    /// <param name="bulletRef"></param>
-    /// <param name="playerId"></param>
     [ClientRpc]
-    private void BulletSpawningClientRpc(NetworkObjectReference bulletRef, ulong playerId)
+    private void BulletSetupClientRpc(NetworkObjectReference bulletRef)
     {
-        // Prevent shooter from creating another bullet (they already see it)
-        if (NetworkManager.Singleton.LocalClientId == playerId) return;
-
-        // Get the bullet object
-        if (bulletRef.TryGet(out NetworkObject bulletObject)) {
-            NetworkBullet bulletScript = bulletObject.GetComponent<NetworkBullet>();
-
-            // Assuming the script isn't null, store the velocity of the bullet
-            if (bulletScript != null) {
-                Vector3 initialVelocity = bulletObject.transform.forward * bulletSpead + Vector3.up * 2;
-                bulletScript.SetVelocity(initialVelocity);
-            }
+        // Apply velocity and movement for each client
+        if (bulletRef.TryGet(out NetworkObject bullet))
+        {
+            bullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
+            bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * bulletSpeed);
         }
-}
+    }
 
     // [ClientRpc]
     // private void BulletSpawningClientRpc(Vector3 position, Quaternion rotation, ulong playerId)
@@ -745,6 +709,7 @@ public class PlayerMovement : NetworkBehaviour
             Debug.Log("No bullets left!");
             return;
         }
+        currentBulletCount--;
 
         // Tell the server to officially create the bullet for synchronization
         BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
