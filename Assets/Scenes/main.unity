@@ -1698,6 +1698,7 @@ GameObject:
   - component: {fileID: 754991914}
   - component: {fileID: 754991913}
   - component: {fileID: 754991912}
+  - component: {fileID: 754991916}
   m_Layer: 0
   m_Name: Headphones
   m_TagString: Untagged
@@ -1794,6 +1795,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1299622118}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &754991916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754991911}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d354136fe2d44be58579619eeceaa01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
+  idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
+  ItemList: {fileID: 1727974068}
 --- !u!1 &777761895
 GameObject:
   m_ObjectHideFlags: 0
@@ -1942,6 +1959,7 @@ GameObject:
   - component: {fileID: 894814632}
   - component: {fileID: 894814631}
   - component: {fileID: 894814630}
+  - component: {fileID: 894814634}
   m_Layer: 0
   m_Name: Joystick
   m_TagString: Untagged
@@ -2038,6 +2056,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1728612854}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &894814634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 894814629}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d354136fe2d44be58579619eeceaa01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
+  idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
+  ItemList: {fileID: 1727974068}
 --- !u!1 &919775788
 GameObject:
   m_ObjectHideFlags: 0
@@ -2803,6 +2837,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
   idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
   ItemList: {fileID: 1727974068}
 --- !u!1 &1149147637
 GameObject:
@@ -2973,6 +3008,7 @@ GameObject:
   - component: {fileID: 1272116769}
   - component: {fileID: 1272116768}
   - component: {fileID: 1272116767}
+  - component: {fileID: 1272116771}
   m_Layer: 0
   m_Name: Printer
   m_TagString: Untagged
@@ -3069,6 +3105,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1299622118}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1272116771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1272116766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d354136fe2d44be58579619eeceaa01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
+  idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
+  ItemList: {fileID: 1727974068}
 --- !u!1 &1299622117
 GameObject:
   m_ObjectHideFlags: 0
@@ -3711,6 +3763,7 @@ GameObject:
   - component: {fileID: 1530887668}
   - component: {fileID: 1530887667}
   - component: {fileID: 1530887666}
+  - component: {fileID: 1530887670}
   m_Layer: 0
   m_Name: Speaker
   m_TagString: Untagged
@@ -3807,6 +3860,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1299622118}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1530887670
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1530887665}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d354136fe2d44be58579619eeceaa01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
+  idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
+  ItemList: {fileID: 1727974068}
 --- !u!1 &1558333944
 GameObject:
   m_ObjectHideFlags: 0
@@ -4313,6 +4382,7 @@ GameObject:
   - component: {fileID: 2000620743}
   - component: {fileID: 2000620742}
   - component: {fileID: 2000620741}
+  - component: {fileID: 2000620745}
   m_Layer: 0
   m_Name: Monitor
   m_TagString: Untagged
@@ -4409,6 +4479,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1299622118}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2000620745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2000620740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d354136fe2d44be58579619eeceaa01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
+  idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
+  ItemList: {fileID: 1727974068}
 --- !u!1 &2001616426
 GameObject:
   m_ObjectHideFlags: 0
@@ -4421,6 +4507,7 @@ GameObject:
   - component: {fileID: 2001616429}
   - component: {fileID: 2001616428}
   - component: {fileID: 2001616427}
+  - component: {fileID: 2001616431}
   m_Layer: 0
   m_Name: Mouse
   m_TagString: Untagged
@@ -4517,6 +4604,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1728612854}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2001616431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2001616426}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d354136fe2d44be58579619eeceaa01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
+  idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
+  ItemList: {fileID: 1727974068}
 --- !u!1 &2038990551
 GameObject:
   m_ObjectHideFlags: 0
@@ -4634,6 +4737,7 @@ GameObject:
   - component: {fileID: 2120045816}
   - component: {fileID: 2120045815}
   - component: {fileID: 2120045814}
+  - component: {fileID: 2120045818}
   m_Layer: 0
   m_Name: Scanner
   m_TagString: Untagged
@@ -4730,6 +4834,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1728612854}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2120045818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2120045813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d354136fe2d44be58579619eeceaa01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  activeMat: {fileID: 2100000, guid: 8e9f97f0fb1c1b14099b64c2d1d65f03, type: 2}
+  idleMat: {fileID: 2100000, guid: ba55e53da6c38124fb4010fe122a8279, type: 2}
+  coolDownTime: 10
+  ItemList: {fileID: 1727974068}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
