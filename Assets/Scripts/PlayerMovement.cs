@@ -7,7 +7,7 @@ using Unity.VisualScripting;
 using System.Linq;
 using System;
 
-using TMPro; // For the inventory display
+//using TMPro; // For the inventory display
 
 
 
@@ -129,9 +129,12 @@ public class PlayerMovement : NetworkBehaviour
     /// <summary>
     /// Displays the inventory on screen
     /// </summary>
-    [SerializeField] public TMP_Text inventoryText;
+    //[SerializeField] private TMP_Text inventoryText;
     // [SerializeField] public TextMeshProUGUI inventoryText;
+    //private readonly InventoryManagerScript InventoryManager;
 
+    //private InventoryManagerScript inventoryManager;
+    //InventoryManagerScript IM = GameObject.AddComponent<InventoryManagerScript>;
 
     // Start is called before the first frame update
     void Start()
@@ -727,19 +730,41 @@ public class PlayerMovement : NetworkBehaviour
     */
 
     // AddToInventory functions [Read above note]
-        // need to add the [ServerRPC] attribute
-        // [ServerRpc]
-        // private void AddToInventoryServerRpc(Part part) {
+    // need to add the [ServerRPC] attribute
+    // [ServerRpc]
+    // private void AddToInventoryServerRpc(Part part) {
 
-        //     // call the AddToInventoryClientRpc method to locally add the item to the inventory all clients
-        //     AddToInventoryClientRpc(part);
-        // }
+    //     // call the AddToInventoryClientRpc method to locally add the item to the inventory all clients
+    //     AddToInventoryClientRpc(part);
+    // }
 
-        // need to add the [ClientRpc] attribute
-        // [ClientRpc]
-        // private void AddToInventoryClientRpc(Part part) {
-        //     inventory.Add(part);
-        //     Debug.Log("Added part to inventory. Total parts: " + inventory.Count);
-        // }
+    // need to add the [ClientRpc] attribute
+    // [ClientRpc]
+    // private void AddToInventoryClientRpc(Part part) {
+    //     inventory.Add(part);
+    //     Debug.Log("Added part to inventory. Total parts: " + inventory.Count);
+    // }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("hit detected");
+        if (other.gameObject.CompareTag("building"))
+        {
+            int myPartIdx = FindPartIndexByName(other.name.ToLower());
+            AddToInventory(parts.ElementAt(myPartIdx));
+            Debug.Log(inventory.Count());
+            //IM.SetText(inventory);
+        }
+    }
+
+    // private void UpdateInventoryText(){
+    //     inventoryText.text = "Inventory:";
+    //     if(inventory.Count() > 0){
+    //         foreach (Part p in inventory)
+    //         {
+    //             inventoryText.text += '\n' + p.Name;
+    //         }
+    //     }
+    // }
 
 }
