@@ -521,7 +521,7 @@ public class PlayerMovement : NetworkBehaviour
         Part joystick = new("Joystick", 1, false, "Input Devices");
 
         // Output Devices
-        Part controlUnit = new("Control Unit", 1, false, "CPU");
+        Part controlUnit = new("ControlUnit", 1, false, "CPU");
         Part ALU = new("ALU", 1, false, "CPU");
         Part memory = new("Memory", 1, false, "CPU");
 
