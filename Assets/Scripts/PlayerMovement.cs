@@ -135,6 +135,8 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private AudioListener audioListener;
     // reference to the camera
     [SerializeField] private Camera playerCamera;
+    // reference to the canvas
+    [SerializeField] private Canvas inventoryUiCanvas;
 
     /// <summary>
     /// Displays the inventory on screen
@@ -164,9 +166,9 @@ public class PlayerMovement : NetworkBehaviour
         // Fill the partNames list
         initParts();
 
-        if (inventoryManager == null)
+        if (inventoryManager != null)
         {
-            inventoryManager = FindFirstObjectByType<InventoryManager>();
+            // inventoryManager = FindFirstObjectByType<InventoryManager>();
             inventoryManager.bulletCount.text = "Ammo: (0/" + maxBullets + ")";
             inventoryManager.partCount.text = "(0/" + totalPartCount + ")";
         }
@@ -175,7 +177,23 @@ public class PlayerMovement : NetworkBehaviour
             Debug.LogError("InventoryManager GameObject is not assigned!");
         }
 
-        // inventoryText.text = "Inventory:";
+        // Check if this is the local player
+        if (IsOwner) // Replace this with your networking library's local player check
+        {
+            // Enable the Canvas for the local player
+            if (inventoryUiCanvas != null)
+            {
+                inventoryUiCanvas.enabled = true;
+            }
+        }
+        else
+        {
+            // Disable the Canvas for remote players
+            if (inventoryUiCanvas != null)
+            {
+                inventoryUiCanvas.enabled = false;
+            }
+        }
     }
 
 
@@ -453,9 +471,7 @@ public class PlayerMovement : NetworkBehaviour
                         // Not sure which one to use
                         // inventory.RemoveAt(0); // Remove first element of inventory list
                         // inventory.RemoveAt(turnedInPartCount); // Remove element of inventory list that matches which part has been turned in
-                        removeInventoryItem();
-
-                        currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
+                        loseInventoryItem();
 
                         // Update the current bullet/part count (visually too)
                         currentBulletCount += partToBulletConversion;
@@ -630,15 +646,15 @@ public class PlayerMovement : NetworkBehaviour
 
         // Iterate through list until the first element that hasn't been turned in is found
         for (int i = 0 ; i < inventory.Count; i++) {
-
-            Debug.Log("Checking " + inventory.ElementAt(i).Name + " turn-in status: " + inventory.ElementAt(i).WasTurnedIn + ".");
+            
+            int myPartIdx = FindPartIndexByName(inventory.ElementAt(i).Name);
+            Debug.Log("Checking " + inventory.ElementAt(i).Name + " turn-in status: " + parts.ElementAt(myPartIdx).WasTurnedIn + ".");
             
             // If the item in the inventory has not already been turned in, turn it in.
             // Finds the first not turned in item, updates it, then returns
-            if (!inventory.ElementAt(i).WasTurnedIn) {
-
-                inventory.ElementAt(i).WasTurnedIn = true;
-                // parts.ElementAt(i).WasTurnedIn = true; // In case it's needed
+            if (!parts.ElementAt(myPartIdx).WasTurnedIn) {
+                // Marked as turned in
+                parts.ElementAt(myPartIdx).WasTurnedIn = true;
 
                 // Decrement part count
                 currentPartCount--;
@@ -653,6 +669,9 @@ public class PlayerMovement : NetworkBehaviour
                     inventoryManager.updateVisualPartCounter(turnedInPartCount, totalPartCount);
                 }
 
+                // Remove from inventory
+                inventory.RemoveAt(i);
+
                 return true;
             }
 
@@ -664,12 +683,13 @@ public class PlayerMovement : NetworkBehaviour
 
     }
 
-    private void removeInventoryItem(){
+    private void loseInventoryItem(){
         int myPartIdx = FindPartIndexByName(inventory.ElementAt(0).Name);
         if(!parts.ElementAt(myPartIdx).WasTurnedIn){
             inventoryManager.updateInventoryTextPartLost(inventory.ElementAt(0));
         }
         inventory.RemoveAt(0);
+        currentPartCount--;
     }
 
     // private void turnInInventory() {
@@ -730,7 +750,7 @@ public class PlayerMovement : NetworkBehaviour
         // Apply velocity and movement for each client
         if (bulletRef.TryGet(out NetworkObject bullet))
         {
-            bullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
+            // bullet.GetComponent<Rigidbody>().linearVelocity += Vector3.up * 2;
             bullet.GetComponent<Rigidbody>().AddForce(bullet.transform.forward * bulletSpeed);
         }
     }
@@ -853,7 +873,7 @@ public class PlayerMovement : NetworkBehaviour
         // Checks if player collided with bullet and if their inventory is not empty. As a result, the first item in their inventory will be removed.
         if(collision.gameObject.CompareTag("Bullet") && inventory.Any()) {
             Debug.Log($"Bullet x Player Collision Detected! Player loses {inventory.ElementAt(0).Name}");
-            removeInventoryItem();
+            loseInventoryItem();
             
         }
 
