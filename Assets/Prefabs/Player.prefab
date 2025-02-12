@@ -67,7 +67,7 @@ Camera:
     height: 1
   near clip plane: 0.01
   far clip plane: 1000
-  field of view: 75
+  field of view: 80
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -390,7 +390,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 1
-  bulletSpead: 90
+  bulletSpeed: 3000
   maxBullets: 15
   maxRenderedBullets: 5
   currentBulletCount: 0
@@ -402,11 +402,12 @@ MonoBehaviour:
   bullet: {fileID: 234619220890464546, guid: 1404c1ef69b6d334f8208c6f1d33cf3c, type: 3}
   partNames: []
   maxParts: 3
+  turnedInPartCount: 0
+  inventoryManager: {fileID: 0}
   canConvertPartsToBullets: 1
   partToBulletConversion: 3
   audioListener: {fileID: 3211948451810884286}
   playerCamera: {fileID: 4305004929243962989}
-  inventoryText: {fileID: 0}
 --- !u!114 &3532501110144039376
 MonoBehaviour:
   m_ObjectHideFlags: 0
