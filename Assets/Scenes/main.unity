@@ -268,17 +268,6 @@ MonoBehaviour:
   slot9: {fileID: 449816514}
   slot10: {fileID: 326251473}
   slot11: {fileID: 2130149425}
-  slot1Status: 0
-  slot2Status: 0
-  slot3Status: 0
-  slot4Status: 0
-  slot5Status: 0
-  slot6Status: 0
-  slot7Status: 0
-  slot8Status: 0
-  slot9Status: 0
-  slot10Status: 0
-  slot11Status: 0
 --- !u!4 &75288108
 Transform:
   m_ObjectHideFlags: 0
@@ -6971,5 +6960,5 @@ SceneRoots:
   - {fileID: 1300273656}
   - {fileID: 226249323}
   - {fileID: 1477671330}
-  - {fileID: 1737659903}
   - {fileID: 75288108}
+  - {fileID: 1737659903}

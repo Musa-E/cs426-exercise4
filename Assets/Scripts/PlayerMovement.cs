@@ -106,6 +106,8 @@ public class PlayerMovement : NetworkBehaviour
     /// </summary>
     public int maxParts = 3; 
 
+    public int turnedInPartCount = 0;
+
 
     // Manage the inventory UI
     // private GameObject inventoryManagerObject;
@@ -247,8 +249,8 @@ public class PlayerMovement : NetworkBehaviour
         // Allows the player to turn in their first, not-turned in part so it can't be stolen
         if (Input.GetKeyDown(KeyCode.T)) {
             
-            // If this function returns true, a part was turned in.  Otherwise, all parts were unable to be turned in.
-            if(!turnInFirstEligibleItem()) {
+            // If this function returns true, a part was turned in.  Otherwise, all parts (11 total) were unable to be turned in.
+            if(!turnInFirstEligibleItem() && turnedInPartCount >= 11) {
                 Debug.Log("No parts could be turned in.  This is a win condition.");
             }
 
@@ -402,7 +404,7 @@ public class PlayerMovement : NetworkBehaviour
                             
                     // Update turned in status for part from part list and add it to the player's inventory
                     inventory.Add(parts.ElementAt(partIdx));
-                    parts.ElementAt(partIdx).WasTurnedIn = true;
+                    parts.ElementAt(partIdx).WasTurnedIn = false;
 
                     currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
                     Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has been acquired.");
@@ -494,21 +496,21 @@ public class PlayerMovement : NetworkBehaviour
     void initParts() {
 
         // Input Devices
-        Part keyboard = new("keyboard", 1, false, "Input Devices");
-        Part mouse = new("mouse", 1, false, "Input Devices");
-        Part scanner = new("scanner", 1, false, "Input Devices");
-        Part joystick = new("joystick", 1, false, "Input Devices");
+        Part keyboard = new("Keyboard", 1, false, "Input Devices");
+        Part mouse = new("Mouse", 1, false, "Input Devices");
+        Part scanner = new("Scanner", 1, false, "Input Devices");
+        Part joystick = new("Joystick", 1, false, "Input Devices");
 
         // Output Devices
-        Part controlUnit = new("controlUnit", 1, false, "CPU");
+        Part controlUnit = new("Control Unit", 1, false, "CPU");
         Part ALU = new("ALU", 1, false, "CPU");
-        Part memory = new("memory", 1, false, "CPU");
+        Part memory = new("Memory", 1, false, "CPU");
 
         // CPU Devices
-        Part monitor = new("monitor", 1, false, "Output Devices");
-        Part printer = new("printer", 1, false, "Output Devices");
-        Part speaker = new("speaker", 1, false, "Output Devices");
-        Part headphones = new("headphones", 1, false, "Output Devices");
+        Part monitor = new("Monitor", 1, false, "Output Devices");
+        Part printer = new("Printer", 1, false, "Output Devices");
+        Part speaker = new("Speaker", 1, false, "Output Devices");
+        Part headphones = new("Headphones", 1, false, "Output Devices");
 
         // Add to part list
         parts.Add(keyboard);
@@ -601,18 +603,32 @@ public class PlayerMovement : NetworkBehaviour
     /// <returns> True: A part was turned in.  False: No part could be turned in, this is a win condition. </returns>
     bool turnInFirstEligibleItem() {
 
+        Debug.Log("Checking turn-in status of all items in inventory.");
+
         // Iterate through list until the first element that hasn't been turned in is found
         for (int i = 0 ; i < inventory.Count; i++) {
             
+            Debug.Log("Checking " + inventory.ElementAt(i).Name + " turn-in status: " + inventory.ElementAt(i).WasTurnedIn + ".");
+
             // If the item in the inventory has not already been turned in, turn it in.
             // Finds the first not turned in item, updates it, then returns
             if (!inventory.ElementAt(i).WasTurnedIn) {
 
                 inventory.ElementAt(i).WasTurnedIn = true;
+                // parts.ElementAt(i).WasTurnedIn = true; // In case it's needed
+
+                // Decrement part count
+                currentPartCount--;
+
+                turnedInPartCount++;  // Increment how many parts were turned in
+
                 Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
                 
                 // Update the UI
-                inventoryManager.turnedIn(inventory.ElementAt(i));
+                if (inventoryManager != null)
+                {
+                    inventoryManager.turnedIn(inventory.ElementAt(i));
+                }
                 return true;
             }
         }
