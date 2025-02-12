@@ -24,6 +24,7 @@ public class InventoryManager : MonoBehaviour
     public TMP_Text slot9;
     public TMP_Text slot10;
     public TMP_Text slot11;
+    public TMP_Text bulletCount;
 
 
     // Start is called before the first frame update
@@ -42,6 +43,7 @@ public class InventoryManager : MonoBehaviour
         slot9.text = "[x] Printer";
         slot10.text = "[x] Speaker";
         slot11.text = "[x] Headphones";
+        bulletCount.text = "Ammo: (0/00)";
     }
 
     //we will call this method from our target script
@@ -102,5 +104,25 @@ public class InventoryManager : MonoBehaviour
                 return;
         }
 
+    }
+
+
+    // Lets the visual counter of the bullet be updated
+    public void updateVisualBulletCounter(int numBullets, int maxBullets) {
+
+        if (numBullets >= 0) {
+
+            if (numBullets < 2) { // Change the color of the text to red if it goes below 2/max
+                bulletCount.color = Color.red;
+            } 
+            else if (numBullets == maxBullets) { // Change the color of the text to green if it matches maxBullets
+                bulletCount.color = Color.green;
+            }
+            else { // Else, keep it white
+                bulletCount.color = Color.white;
+            }
+
+            bulletCount.text = "Ammo: (" + numBullets.ToString() + "/" + maxBullets + ")";
+        }
     }
 }

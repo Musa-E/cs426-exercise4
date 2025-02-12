@@ -451,8 +451,9 @@ public class PlayerMovement : NetworkBehaviour
 
                         currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
 
-                        // Update the current bullet count
-                        currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
+                        // Update the current bullet count (visually too)
+                        currentBulletCount += partToBulletConversion;
+                        inventoryManager.updateVisualBulletCounter(currentBulletCount, maxBullets);
                         // Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
                     }
 
@@ -781,6 +782,9 @@ public class PlayerMovement : NetworkBehaviour
             return;
         }
         currentBulletCount--;
+
+        // Update the visual counter accordingly
+        inventoryManager.updateVisualBulletCounter(currentBulletCount, maxBullets);
 
         // Tell the server to officially create the bullet for synchronization
         BulletSpawningServerRpc(cannon.transform.position, cannon.transform.rotation);
