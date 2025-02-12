@@ -30,11 +30,10 @@ public class BuildingScript : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //Debug.Log("hit detected");
-        if (isActive){
+        if (isActive && other.gameObject.CompareTag("Player"))
+        {
             GetComponent<Renderer>().material = idleMat;
-
             isActive = false;
         }
     }
-
 }

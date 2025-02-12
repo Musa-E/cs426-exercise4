@@ -516,7 +516,7 @@ public class PlayerMovement : NetworkBehaviour
         Part joystick = new("Joystick", 1, false, "Input Devices");
 
         // Output Devices
-        Part controlUnit = new("Control Unit", 1, false, "CPU");
+        Part controlUnit = new("ControlUnit", 1, false, "CPU");
         Part ALU = new("ALU", 1, false, "CPU");
         Part memory = new("Memory", 1, false, "CPU");
 
@@ -822,7 +822,7 @@ public class PlayerMovement : NetworkBehaviour
         Debug.Log("hit detected");
         if (other.gameObject.CompareTag("building"))
         {
-            int myPartIdx = FindPartIndexByName(other.name.ToLower());
+            int myPartIdx = FindPartIndexByName(other.name);
             AddToInventory(parts.ElementAt(myPartIdx));
             Debug.Log($"Items in inventory {inventory.Count()}");
             //IM.SetText(inventory);
@@ -846,15 +846,4 @@ public class PlayerMovement : NetworkBehaviour
         }
 
     }
-
-    // private void UpdateInventoryText(){
-    //     inventoryText.text = "Inventory:";
-    //     if(inventory.Count() > 0){
-    //         foreach (Part p in inventory)
-    //         {
-    //             inventoryText.text += '\n' + p.Name;
-    //         }
-    //     }
-    // }
-
 }
