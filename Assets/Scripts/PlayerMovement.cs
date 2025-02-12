@@ -103,6 +103,16 @@ public class PlayerMovement : NetworkBehaviour
     /// Max number of parts a player can hold
     /// </summary>
     public int maxParts = 3; 
+
+    /// <summary>
+    /// How many parts have been turned in so far
+    /// </summary>
+    public int turnedInPartCount = 0;
+
+
+    // Manage the inventory UI
+    // private GameObject inventoryManagerObject;
+    [SerializeField] public InventoryManager inventoryManager;
     
     /// </summary>
     /// Can the player convert a part to bullets
@@ -151,6 +161,15 @@ public class PlayerMovement : NetworkBehaviour
 
         // Fill the partNames list
         initParts();
+
+        if (inventoryManager == null)
+        {
+            inventoryManager = FindFirstObjectByType<InventoryManager>();
+        }
+        else
+        {
+            Debug.LogError("InventoryManager GameObject is not assigned!");
+        }
 
         // inventoryText.text = "Inventory:";
     }
@@ -230,14 +249,14 @@ public class PlayerMovement : NetworkBehaviour
 
 
         // Allows the player to turn in their first, not-turned in part so it can't be stolen
-        // if (Input.GetKeyDown(KeyCode.T)) {
+        if (Input.GetKeyDown(KeyCode.T)) {
             
-        //     // If this function returns true, a part was turned in.  Otherwise, all parts were unable to be turned in.
-        //     if(!turnInFirstEligibleItem()) {
-        //         Debug.Log("No parts could be turned in.  This is a win condition.");
-        //     }
+            // If this function returns true, a part was turned in.  Otherwise, all parts (11 total) were unable to be turned in.
+            if(!turnInFirstEligibleItem() && turnedInPartCount >= 11) {
+                Debug.Log("No parts could be turned in.  This is a win condition.");
+            }
 
-        // }
+        }
 
 
         // When the user shoots a bullet
@@ -387,7 +406,7 @@ public class PlayerMovement : NetworkBehaviour
                             
                     // Update turned in status for part from part list and add it to the player's inventory
                     inventory.Add(parts.ElementAt(partIdx));
-                    // parts.ElementAt(partIdx).WasTurnedIn = true;
+                    parts.ElementAt(partIdx).WasTurnedIn = false;
 
                     currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
                     Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has been acquired.");
@@ -414,24 +433,35 @@ public class PlayerMovement : NetworkBehaviour
 
         if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
 
-            // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
-            if (currentBulletCount + partToBulletConversion <= maxBullets) {
-                
-                if (inventory[0] == null) { // Ensure not null
-                    Debug.Log("Part does not exist");
-                
+            // Enforce the rule of needing at least one part in order to convert into bullets
+            if (currentPartCount > 0) {
+
+                // Add [partToBulletConversion] number of bullets to count as long as it doesn't exceed maxBullets
+                if (currentBulletCount + partToBulletConversion <= maxBullets) {
+                    
+                    if (inventory[0] == null) { // Ensure not null
+                        Debug.Log("Part does not exist");
+                    
+                    } else {
+                        Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
+                        
+                        // Not sure which one to use
+                        // inventory.RemoveAt(0); // Remove first element of inventory list
+                        inventory.RemoveAt(turnedInPartCount); // Remove element of inventory list that matches which part has been turned in
+
+                        currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
+
+                        // Update the current bullet count
+                        currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
+                        // Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
+                    }
+
                 } else {
-                    Debug.Log("Removing " + inventory.ElementAt(0).Name + "... Converting to " + partToBulletConversion + " bullets!");
-                    inventory.RemoveAt(0); // Remove first element of inventory list
-                    currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
-
-                    // Update the current bullet count
-                    currentBulletCount += partToBulletConversion; // Does this still need: activeBullets.Count + ???
-                    // Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
+                    Debug.Log("Could not convert part to bullets: Bullet count (" + currentBulletCount + ") cannot exceed maximum bullet count (" + maxBullets + ").");
                 }
-
+            
             } else {
-                Debug.Log("Could not convert part to bullets: Bullet count (" + currentBulletCount + ") cannot exceed maximum bullet count (" + maxBullets + ").");
+                Debug.Log("Cannot convert: No parts to convert.");
             }
 
         }   else {
@@ -479,35 +509,37 @@ public class PlayerMovement : NetworkBehaviour
     void initParts() {
 
         // Input Devices
-        Part keyboard = new("keyboard", 1, false, "Input Devices");
-        Part mouse = new("mouse", 1, false, "Input Devices");
-        Part scanner = new("scanner", 1, false, "Input Devices");
-        Part joystick = new("joystick", 1, false, "Input Devices");
+        Part keyboard = new("Keyboard", 1, false, "Input Devices");
+        Part mouse = new("Mouse", 1, false, "Input Devices");
+        Part scanner = new("Scanner", 1, false, "Input Devices");
+        Part joystick = new("Joystick", 1, false, "Input Devices");
 
         // Output Devices
-        Part controlUnit = new("controlUnit", 1, false, "CPU");
+        Part controlUnit = new("Control Unit", 1, false, "CPU");
         Part ALU = new("ALU", 1, false, "CPU");
-        Part memory = new("memory", 1, false, "CPU");
+        Part memory = new("Memory", 1, false, "CPU");
 
         // CPU Devices
-        Part monitor = new("monitor", 1, false, "Output Devices");
-        Part printer = new("printer", 1, false, "Output Devices");
-        Part speaker = new("speaker", 1, false, "Output Devices");
-        Part headphones = new("headphones", 1, false, "Output Devices");
+        Part monitor = new("Monitor", 1, false, "Output Devices");
+        Part printer = new("Printer", 1, false, "Output Devices");
+        Part speaker = new("Speaker", 1, false, "Output Devices");
+        Part headphones = new("Headphones", 1, false, "Output Devices");
 
         // Add to part list
         parts.Add(keyboard);
         parts.Add(mouse);
         parts.Add(scanner);
         parts.Add(joystick);
+
         parts.Add(controlUnit);
         parts.Add(ALU);
         parts.Add(memory);
+
         parts.Add(monitor);
         parts.Add(printer);
         parts.Add(speaker);
         parts.Add(headphones);
-        
+  
     }
 
 
@@ -584,23 +616,44 @@ public class PlayerMovement : NetworkBehaviour
     /// Allows the player to turn in the first item in their inventory
     /// </summary>
     /// <returns> True: A part was turned in.  False: No part could be turned in, this is a win condition. </returns>
-    // bool turnInFirstEligibleItem() {
+    bool turnInFirstEligibleItem() {
 
-    //     // Iterate through list until the first element that hasn't been turned in is found
-    //     for (int i = 0 ; i < inventory.Count; i++) {
+        Debug.Log("Checking turn-in status of all items in inventory.");
+
+        // Iterate through list until the first element that hasn't been turned in is found
+        for (int i = 0 ; i < inventory.Count; i++) {
+
+            Debug.Log("Checking " + inventory.ElementAt(i).Name + " turn-in status: " + inventory.ElementAt(i).WasTurnedIn + ".");
             
-    //         // If the item in the inventory has not already been turned in, turn it in.
-    //         // Finds the first not turned in item, updates it, then returns
-    //         if (!inventory.ElementAt(i).WasTurnedIn) {
+            // If the item in the inventory has not already been turned in, turn it in.
+            // Finds the first not turned in item, updates it, then returns
+            if (!inventory.ElementAt(i).WasTurnedIn) {
 
-    //             inventory.ElementAt(i).WasTurnedIn = true;
-    //             Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
-    //             return true;
-    //         }
-    //     }
+                inventory.ElementAt(i).WasTurnedIn = true;
+                // parts.ElementAt(i).WasTurnedIn = true; // In case it's needed
 
-    //     return false;
-    // }
+                // Decrement part count
+                currentPartCount--;
+                turnedInPartCount++;  // Increment how many parts were turned in
+
+                Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
+
+                // Update the UI
+                if (inventoryManager != null)
+                {
+                    inventoryManager.turnedIn(inventory.ElementAt(i));
+                }
+
+                return true;
+            }
+
+        }
+
+
+
+        return false;
+
+    }
 
     private void turnInInventory() {
 
@@ -775,7 +828,7 @@ public class PlayerMovement : NetworkBehaviour
     // Function is called on first collision
     private void OnCollisionEnter(Collision collision)
     {   
-        Debug.Log("Entered Collision");
+        // Debug.Log("Entered Collision");
 
         // Checks if player collided with bullet and if their inventory is not empty. As a result, the first item in their inventory will be removed.
         if(collision.gameObject.CompareTag("Bullet") && inventory.Any()) {
