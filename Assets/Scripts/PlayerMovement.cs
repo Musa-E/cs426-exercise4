@@ -391,7 +391,7 @@ public class PlayerMovement : NetworkBehaviour
                             
                     // Update turned in status for part from part list and add it to the player's inventory
                     inventory.Add(parts.ElementAt(partIdx));
-                    parts.ElementAt(partIdx).WasTurnedIn = true;
+                    // parts.ElementAt(partIdx).WasTurnedIn = true;
 
                     currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
                     Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has been acquired.");
@@ -615,6 +615,7 @@ public class PlayerMovement : NetworkBehaviour
         for (int i = 0 ; i < inventory.Count; i++) {
             // If the item in the inventory has not already been turned in, turn it in.
             int partIndex = parts.IndexOf(inventory.ElementAt(i));
+            Debug.Log($"Part index: {partIndex}");
             if (!parts.ElementAt(partIndex).WasTurnedIn) {
                 parts.ElementAt(partIndex).WasTurnedIn = true;
                 Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
@@ -769,14 +770,15 @@ public class PlayerMovement : NetworkBehaviour
     // Function is called on first collision
     private void OnCollisionEnter(Collision collision)
     {   
+        Debug.Log("Entered Collision");
 
         // Checks if player collided with bullet and if their inventory is not empty. As a result, the first item in their inventory will be removed.
-        if(collision.gameObject == bullet && inventory.Any()) {
+        if(collision.gameObject.CompareTag("Bullet") && inventory.Any()) {
             Debug.Log("Bullet x Player Collision Detected!");
             inventory.RemoveAt(0);
         }
 
-        if(collision.gameObject == turnInStation && inventory.Any()) {
+        if(collision.gameObject.tag == "Submit" && inventory.Any()) {
             Debug.Log("Turn In Station x Player Collision Detected!");
             turnInInventory();
         }
