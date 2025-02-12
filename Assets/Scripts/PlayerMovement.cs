@@ -414,6 +414,7 @@ public class PlayerMovement : NetworkBehaviour
 
                     currentPartCount++; // Increment the current number of parts for easy viewing in the inspector
                     Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has been acquired.");
+                    inventoryManager.updateInventoryTextPartAcquired(parts.ElementAt(partIdx)); 
 
                 } else { // Element found, but was already turned in; does not allow for duplicate items in inventory
                     Debug.Log("The '" + parts.ElementAt(partIdx).Name + "' part has already been turned in, and cannot be reacquired.");
@@ -433,9 +434,9 @@ public class PlayerMovement : NetworkBehaviour
     /// <summary>
     /// Converts parts held in the player's inventory into bullets, with various conditions being checked
     /// </summary>
-    void convertPartToBullet() {
+    private void convertPartToBullet() {
 
-        if (inventory != null && inventory.Count > 0) { // If the inventory list isn't empty...
+        if (inventory != null && inventory.Any()) { // If the inventory list isn't empty...
 
             // Enforce the rule of needing at least one part in order to convert into bullets
             if (currentPartCount > 0) {
@@ -451,14 +452,15 @@ public class PlayerMovement : NetworkBehaviour
                         
                         // Not sure which one to use
                         // inventory.RemoveAt(0); // Remove first element of inventory list
-                        inventory.RemoveAt(turnedInPartCount); // Remove element of inventory list that matches which part has been turned in
+                        // inventory.RemoveAt(turnedInPartCount); // Remove element of inventory list that matches which part has been turned in
+                        removeInventoryItem();
 
                         currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
 
                         // Update the current bullet/part count (visually too)
                         currentBulletCount += partToBulletConversion;
                         inventoryManager.updateVisualBulletCounter(currentBulletCount, maxBullets);
-                        inventoryManager.updateVisualPartCounter(turnedInPartCount, totalPartCount);
+                        // inventoryManager.updateVisualPartCounter(turnedInPartCount, totalPartCount);
                         // Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
                     }
 
@@ -662,22 +664,30 @@ public class PlayerMovement : NetworkBehaviour
 
     }
 
-    private void turnInInventory() {
-
-        // Iterate through list to turn in valid parts.
-        for (int i = 0 ; i < inventory.Count; i++) {
-            // If the item in the inventory has not already been turned in, turn it in.
-            int partIndex = parts.IndexOf(inventory.ElementAt(i));
-            Debug.Log($"Part index: {partIndex}");
-            if (!parts.ElementAt(partIndex).WasTurnedIn) {
-                parts.ElementAt(partIndex).WasTurnedIn = true;
-                Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
-                inventory.RemoveAt(i);
-            } else {
-                Debug.Log("This part was already submitted. Consider converting it to bullets.");
-            }
+    private void removeInventoryItem(){
+        int myPartIdx = FindPartIndexByName(inventory.ElementAt(0).Name);
+        if(!parts.ElementAt(myPartIdx).WasTurnedIn){
+            inventoryManager.updateInventoryTextPartLost(inventory.ElementAt(0));
         }
+        inventory.RemoveAt(0);
     }
+
+    // private void turnInInventory() {
+
+    //     // Iterate through list to turn in valid parts.
+    //     for (int i = 0 ; i < inventory.Count; i++) {
+    //         // If the item in the inventory has not already been turned in, turn it in.
+    //         int partIndex = parts.IndexOf(inventory.ElementAt(i));
+    //         Debug.Log($"Part index: {partIndex}");
+    //         if (!parts.ElementAt(partIndex).WasTurnedIn) {
+    //             parts.ElementAt(partIndex).WasTurnedIn = true;
+    //             Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
+    //             inventory.RemoveAt(i);
+    //         } else {
+    //             Debug.Log("This part was already submitted. Consider converting it to bullets.");
+    //         }
+    //     }
+    // }
 
 
     // this method is called when the object is spawned
@@ -842,13 +852,16 @@ public class PlayerMovement : NetworkBehaviour
 
         // Checks if player collided with bullet and if their inventory is not empty. As a result, the first item in their inventory will be removed.
         if(collision.gameObject.CompareTag("Bullet") && inventory.Any()) {
-            Debug.Log("Bullet x Player Collision Detected!");
-            inventory.RemoveAt(0);
+            Debug.Log($"Bullet x Player Collision Detected! Player loses {inventory.ElementAt(0).Name}");
+            removeInventoryItem();
+            
         }
 
         if(collision.gameObject.tag == "Submit" && inventory.Any()) {
             Debug.Log("Turn In Station x Player Collision Detected!");
-            turnInInventory();
+            if(!turnInFirstEligibleItem() && turnedInPartCount >= 11) {
+                Debug.Log("No parts could be turned in.  This is a win condition.");
+            }
         }
 
     }

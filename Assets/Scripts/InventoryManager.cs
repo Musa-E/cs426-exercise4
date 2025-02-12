@@ -48,12 +48,11 @@ public class InventoryManager : MonoBehaviour
         bulletCount.text = "Ammo: (0/00)";
     }
 
-    //we will call this method from our target script
-    // whenever the player collides or shoots a target a point will be added
+    // Updates inventory text when items are turned in.
     public void turnedIn(Part turnedInPart)
     {
         if (turnedInPart == null) {
-            // turnedInPart.WasTurnedIn = true;
+            return;
         }
 
         // Update the UI accordingly
@@ -75,6 +74,7 @@ public class InventoryManager : MonoBehaviour
             
             // CPU devices
             case("Control Unit"):
+            case("ControlUnit"):
                 slot5.text = "[√] <s>Control Unit</s>";
                 return;
             case("ALU"):
@@ -96,6 +96,128 @@ public class InventoryManager : MonoBehaviour
                 return;
             case("Headphones"):
                 slot11.text = "[√] <s>Headphones</s>";
+                return;
+            
+            case(null): // Just in case
+                return;
+            
+            default: // Just in case
+                Debug.Log("An error occured while trying to update the inventory UI: Invalid/Unexpected part name");
+                return;
+        }
+
+    }
+
+
+    // Updates inventory text when item is acquired.
+    public void updateInventoryTextPartAcquired(Part acquiredPart)
+    {
+        if (acquiredPart == null) {
+            return;
+        }
+
+        // Update the UI accordingly
+        switch(acquiredPart.Name) {
+
+            // Input Devices
+            case("Keyboard"):
+                slot1.text = "[!] Keyboard";
+                return;
+            case("Mouse"):
+                slot2.text = "[!] Mouse";
+                return;
+            case("Scanner"):
+                slot3.text = "[!] Scanner";
+                return;
+            case("Joystick"):
+                slot4.text = "[!] Joystick";
+                return;
+            
+            // CPU devices
+            case("Control Unit"):
+            case("ControlUnit"):
+                slot5.text = "[!] Control Unit";
+                return;
+            case("ALU"):
+                slot6.text = "[!] ALU";
+                return;
+            case("Memory"):
+                slot7.text = "[!] Memory";
+                return;
+
+            // Output devices
+            case("Monitor"):
+                slot8.text = "[!] Monitor";
+                return;
+            case("Printer"):
+                slot9.text = "[!] Printer";
+                return;
+            case("Speaker"):
+                slot10.text = "[!] Speaker";
+                return;
+            case("Headphones"):
+                slot11.text = "[!] Headphones";
+                return;
+            
+            case(null): // Just in case
+                return;
+            
+            default: // Just in case
+                Debug.Log("An error occured while trying to update the inventory UI: Invalid/Unexpected part name");
+                return;
+        }
+
+    }
+
+
+    // Updates inventory text when item is lost.
+    public void updateInventoryTextPartLost(Part lostPart)
+    {
+        if (lostPart == null) {
+            return;
+        }
+
+        // Update the UI accordingly
+        switch(lostPart.Name) {
+
+            // Input Devices
+            case("Keyboard"):
+                slot1.text = "[x] Keyboard";
+                return;
+            case("Mouse"):
+                slot2.text = "[x] Mouse";
+                return;
+            case("Scanner"):
+                slot3.text = "[x] Scanner";
+                return;
+            case("Joystick"):
+                slot4.text = "[x] Joystick";
+                return;
+            
+            // CPU devices
+            case("Control Unit"):
+            case("ControlUnit"):
+                slot5.text = "[x] Control Unit";
+                return;
+            case("ALU"):
+                slot6.text = "[x] ALU";
+                return;
+            case("Memory"):
+                slot7.text = "[x] Memory";
+                return;
+
+            // Output devices
+            case("Monitor"):
+                slot8.text = "[x] Monitor";
+                return;
+            case("Printer"):
+                slot9.text = "[x] Printer";
+                return;
+            case("Speaker"):
+                slot10.text = "[x] Speaker";
+                return;
+            case("Headphones"):
+                slot11.text = "[x] Headphones";
                 return;
             
             case(null): // Just in case
