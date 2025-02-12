@@ -99,6 +99,8 @@ public class PlayerMovement : NetworkBehaviour
     public List<String> partNames = new List<String>();
     public List<Part> parts = new List<Part>();
 
+    public int totalPartCount = 11; // Based off the project diagram, there are 11 parts.
+
     /// <summary>
     /// Max number of parts a player can hold
     /// </summary>
@@ -165,6 +167,8 @@ public class PlayerMovement : NetworkBehaviour
         if (inventoryManager == null)
         {
             inventoryManager = FindFirstObjectByType<InventoryManager>();
+            inventoryManager.bulletCount.text = "Ammo: (0/" + maxBullets + ")";
+            inventoryManager.partCount.text = "(0/" + totalPartCount + ")";
         }
         else
         {
@@ -451,9 +455,10 @@ public class PlayerMovement : NetworkBehaviour
 
                         currentPartCount--; // Decrement the current number of parts for easy viewing in the inspector
 
-                        // Update the current bullet count (visually too)
+                        // Update the current bullet/part count (visually too)
                         currentBulletCount += partToBulletConversion;
                         inventoryManager.updateVisualBulletCounter(currentBulletCount, maxBullets);
+                        inventoryManager.updateVisualPartCounter(turnedInPartCount, totalPartCount);
                         // Debug.Log("Current bullet count is now: " + currentBulletCount + "= " + (currentBulletCount-partToBulletConversion) + " + " + partToBulletConversion);
                     }
 
@@ -516,7 +521,7 @@ public class PlayerMovement : NetworkBehaviour
         Part joystick = new("Joystick", 1, false, "Input Devices");
 
         // Output Devices
-        Part controlUnit = new("ControlUnit", 1, false, "CPU");
+        Part controlUnit = new("Control Unit", 1, false, "CPU");
         Part ALU = new("ALU", 1, false, "CPU");
         Part memory = new("Memory", 1, false, "CPU");
 
@@ -643,6 +648,7 @@ public class PlayerMovement : NetworkBehaviour
                 if (inventoryManager != null)
                 {
                     inventoryManager.turnedIn(inventory.ElementAt(i));
+                    inventoryManager.updateVisualPartCounter(turnedInPartCount, totalPartCount);
                 }
 
                 return true;

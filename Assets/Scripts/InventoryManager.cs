@@ -25,6 +25,7 @@ public class InventoryManager : MonoBehaviour
     public TMP_Text slot10;
     public TMP_Text slot11;
     public TMP_Text bulletCount;
+    public TMP_Text partCount;
 
 
     // Start is called before the first frame update
@@ -32,6 +33,7 @@ public class InventoryManager : MonoBehaviour
     {
 
         inventoryTitle.text = "<b>Inventory:</b>"; // '\u2612' -> '\u2611' 
+        partCount.text = "(0/00)";
         slot1.text = "[x] Keyboard";
         slot2.text = "[x] Mouse";
         slot3.text = "[x] Scanner";
@@ -125,4 +127,24 @@ public class InventoryManager : MonoBehaviour
             bulletCount.text = "Ammo: (" + numBullets.ToString() + "/" + maxBullets + ")";
         }
     }
+
+
+    public void updateVisualPartCounter(int numParts, int maxParts) {
+        
+        if (numParts >= 0) {
+
+            if (numParts < 3) { // Change the color of the text to red if it goes below 2/max
+                partCount.color = Color.red;
+            }
+            else if (numParts == maxParts) { // Change the color of the text to green if it matches maxBullets
+                partCount.color = Color.green;
+            }
+            else { // Else, keep it white
+                partCount.color = Color.white;
+            }
+
+            partCount.text = "(" + numParts.ToString() + "/" + maxParts + ")";
+        }
+    }
+
 }
