@@ -99,13 +99,19 @@ public class PlayerMovement : NetworkBehaviour
     public List<String> partNames = new List<String>();
     public List<Part> parts = new List<Part>();
 
-    private bool partTurnedIn = false;
+    // private bool partTurnedIn = false;
 
     /// <summary>
     /// Max number of parts a player can hold
     /// </summary>
     public int maxParts = 3; 
+
+
+    // Manage the inventory UI
+    // private GameObject inventoryManagerObject;
+    [SerializeField] public InventoryManager inventoryManager;
     
+
     /// </summary>
     /// Can the player convert a part to bullets
     /// </summary>
@@ -125,6 +131,7 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private AudioListener audioListener;
     // reference to the camera
     [SerializeField] private Camera playerCamera;
+
 
     /// <summary>
     /// Displays the inventory on screen
@@ -150,6 +157,15 @@ public class PlayerMovement : NetworkBehaviour
 
         // Fill the partNames list
         initParts();
+
+        if (inventoryManager == null)
+        {
+            inventoryManager = FindFirstObjectByType<InventoryManager>();
+        }
+        else
+        {
+            Debug.LogError("InventoryManager GameObject is not assigned!");
+        }
 
         // inventoryText.text = "Inventory:";
     }
@@ -594,6 +610,9 @@ public class PlayerMovement : NetworkBehaviour
 
                 inventory.ElementAt(i).WasTurnedIn = true;
                 Debug.Log("Your '" + inventory.ElementAt(i).Name + "' part was turned in and can no longer be lost!");
+                
+                // Update the UI
+                inventoryManager.turnedIn(inventory.ElementAt(i));
                 return true;
             }
         }
