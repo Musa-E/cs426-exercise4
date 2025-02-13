@@ -62,21 +62,27 @@ Our formal elements included
 Compete against another player to get all the parts first, while avoiding their attempts to sabotage you.
 
 **Unusual Procedure/Rule:**
-Players will have to choose between either turning in their parts, or converting them into bullets to use against their opponent.  This presents
-them with a dilmena: Push myself forward, or push my enemies back?
+Players must choose between turning in their parts or converting them into bullets to use against their opponent.  This presents
+them with a dilemma: Push myself forward, or push my enemies back?
 
 **Adherence To Game Theme:**
 We stuck with the game theme by modeling everything off the computer architecture diagram we were given when assigned this project.  Then we just added
 more functionality and interactability for players.
 
 **Serious Objective:**
-The serious objective of this project was to provide a source of education in the field of engineering in a fun way.
+The serious objective of this project was to provide a fun, educational activity that allows the players to
+explore a 3D replica of the basic architecture of a computer.
 
 **Serious Question/Answer:**
 The serious question was "What are the physical components of a computer's architecture?".
-It's answer would be the parts players collected, thus the expected correct answer for our serious objective: 
+Its answer would be the parts players collected, thus the expected correct answer for our serious objective: 
 > - Arithmetic Logic Unit (ALU)
 > - Control Unit
 > - Memory
 > - Input Devices
 > - Output Devices
+
+----
+
+## References:
+Used player movement implementation from [this video](https://www.youtube.com/watch?v=6FitlbrpjlQ).
