@@ -55,8 +55,11 @@ Grade will be based on:
 # Step 7 Response:
 **Names:** Diego Bravo, Musa Elqaq, Nathaniel Herrera
 
+**Brief Game Idea**
+Two thieves race to be the first to steal all parts from buildings around the map, representing the parts of a computer. Players can hold a maximum of three parts. They must turn in the parts to secure them. If another player shoots them while they are carrying a part, then they lose a part. The first player to turn in all parts wins.
+
 **Formal Element Summary:**
-Our formal elements included
+Our formal elements included:
 
 **Multiplayer Aspect:**
 Compete against another player to get all the parts first, while avoiding their attempts to sabotage you.
